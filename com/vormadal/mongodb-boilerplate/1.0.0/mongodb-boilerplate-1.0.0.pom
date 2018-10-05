@@ -54,11 +54,9 @@
 
     <distributionManagement>
         <repository>
-            <id>dk.agenia.maven.repo</id>
-            <name>dk.agenia.maven.repo</name>
+            <id>com.vormadal.mongodb</id>
+            <name>com.vormadal.mongodb</name>
             <url>git:releases://git@bitbucket.org:vormadal/mongodb-boilerplate.git</url>
-            <!-- git@bitbucket.org:team_agenia/java.configuration.service.git -->
-            <!--<url>git:master://git@bitbucket.org:myCompany/meta/mavenrepo.git</url> This is an Example-->
         </repository>
     </distributionManagement>
 
