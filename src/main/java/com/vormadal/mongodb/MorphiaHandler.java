@@ -1,6 +1,7 @@
 package com.vormadal.mongodb;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.vormadal.mongodb.exceptions.MorphiaException;
 import com.vormadal.mongodb.options.DaoOptions;
 import com.vormadal.mongodb.options.DbOptions;
@@ -20,28 +21,37 @@ public class MorphiaHandler implements DbProvider {
 
     private Datastore datastore;
 
+    public MorphiaHandler() throws MorphiaException{
+        this(null, new DbOptions());
+    }
+    public MorphiaHandler(DbOptions options) throws MorphiaException{
+        this(null, options);
+    }
     public MorphiaHandler(SetupHandler setupHandler, DbOptions options) throws MorphiaException {
-        if (options.getDbServers() == null) {
-            throw new MorphiaException("Environment variable: MONGODB_URI not set - contact Sysadmin");
-        }
+        try {
+            MongoClient client = options.getMongoClient();
 
-        log.info("Connecting to mongo servers...");
-        MongoClient client = options.getDbServers().length > 1 ?
-                new MongoClient(options.getDbServers()[0]) :
-                new MongoClient(asList(options.getDbServers()));
-        log.info("Mapping packages... ");
-        //Map DTOS
-        Morphia morphia = new Morphia();
-        if(options.getModelsPackages() != null){
-            for(String pack : options.getModelsPackages()){
-                morphia.mapPackage(pack);
+            if (client == null) {
+                log.warn("no mongoclient provided using default on localhost");
+                client = new MongoClient();
             }
-        }
 
-        log.info("Creating datastore for database: " + options.getDatabase());
-        datastore = morphia.createDatastore(client, options.getDatabase());
-        datastore.ensureIndexes();
-        setupHandler.onSetup(this);
+            log.info("Mapping packages... ");
+            //Map DTOS
+            Morphia morphia = new Morphia();
+            if (options.getModelsPackages() != null) {
+                for (String pack : options.getModelsPackages()) {
+                    morphia.mapPackage(pack);
+                }
+            }
+
+            log.info("Creating datastore for database: " + options.getDatabase());
+            datastore = morphia.createDatastore(client, options.getDatabase());
+            datastore.ensureIndexes();
+        }catch(Exception e){
+            throw new MorphiaException("Could not complete initialization of the MorphiaHandler", e);
+        }
+        if(setupHandler != null)setupHandler.onSetup(this);
     }
 
     public Datastore getDatastore() {

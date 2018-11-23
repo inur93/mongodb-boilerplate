@@ -1,7 +1,11 @@
 package com.vormadal.mongodb.options;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.ServerAddress;
 import lombok.Getter;
+
+import static java.util.Arrays.asList;
 
 /**
  * Created: 21-09-2018
@@ -9,14 +13,13 @@ import lombok.Getter;
  */
 @Getter
 public class DbOptions {
-    private ServerAddress[] dbServers = new ServerAddress[]{
-            new ServerAddress("localhost", 27017)
-    };
+
+    private MongoClient mongoClient = null;
     private String database = "localhost";
     private String[] modelsPackages = null;
 
-    public DbOptions dbServers(ServerAddress... addresses){
-        this.dbServers = addresses;
+    public DbOptions mongoClient(MongoClient client){
+        this.mongoClient = client;
         return this;
     }
 

@@ -7,6 +7,10 @@ package com.vormadal.mongodb.exceptions;
 
 public class MorphiaException extends Exception {
     public MorphiaException(String msg){
-        super(msg);
+        this(msg, null);
+    }
+
+    public MorphiaException(String msg, Throwable cause){
+        super(msg, cause);
     }
 }
