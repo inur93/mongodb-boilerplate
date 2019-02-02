@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static javax.tools.Diagnostic.Kind.ERROR;
-import static javax.tools.Diagnostic.Kind.NOTE;
 
 /**
  * <p>Created: 31-01-2019</p>
@@ -35,7 +34,6 @@ public class MongoDtoProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
         for (TypeElement annotation : annotations) {
-            processingEnv.getMessager().printMessage(NOTE, "annotation name: " + annotation.getQualifiedName());
             Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
             Set<TypeElement> types = ElementFilter.typesIn(annotatedElements);
 
@@ -43,9 +41,7 @@ public class MongoDtoProcessor extends AbstractProcessor {
             int highestOrderPackage = 99;
             Map<String, List<String>> classFields = new HashMap<>();
             for (TypeElement classType : types) {
-                /*
-                DEBUG
-                 */
+
                 String packageClassName = classType.getQualifiedName().toString();
                 String className = classType.getSimpleName().toString();
                 //try to find the best fit package for the Fields class.
@@ -75,15 +71,6 @@ public class MongoDtoProcessor extends AbstractProcessor {
     }
 
     public void processPartialDtos(TypeElement classType, String packageName) {
-        if (classType.getEnclosedElements().size() > 0) {
-            processingEnv.getMessager().printMessage(NOTE, "b1: " + classType.getEnclosedElements().get(0).asType().toString());
-            processingEnv.getMessager().printMessage(NOTE, "b2: " + classType.getEnclosedElements().get(0).getEnclosingElement().toString());
-        }
-
-        if (classType.getTypeParameters().size() > 0) {
-            processingEnv.getMessager().printMessage(NOTE, "v1: " + classType.getTypeParameters().get(0).getSimpleName());
-            processingEnv.getMessager().printMessage(NOTE, "v2: " + classType.getTypeParameters().get(0).getKind().toString());
-        }
 
         MongoDto dtoAnnotation = classType.getAnnotation(MongoDto.class);
         for (PartialDto partial : dtoAnnotation.partials()) {
