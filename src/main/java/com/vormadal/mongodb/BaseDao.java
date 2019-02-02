@@ -1,5 +1,6 @@
 package com.vormadal.mongodb;
 
+import com.vormadal.mongodb.annotations.PartialDto;
 import com.vormadal.mongodb.exceptions.MorphiaException;
 import com.vormadal.mongodb.models.BaseDto;
 import com.vormadal.mongodb.models.ListWithTotal;
@@ -15,7 +16,6 @@ import java.util.Map;
  * Created: 21-09-2018
  * author: Runi
  */
-
 public interface BaseDao<T extends BaseDto> {
 
     long getCount();

@@ -1,15 +1,12 @@
 package com.vormadal.mongodb;
 
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
 import com.vormadal.mongodb.exceptions.MorphiaException;
 import com.vormadal.mongodb.options.DaoOptions;
 import com.vormadal.mongodb.options.DbOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
-
-import static java.util.Arrays.asList;
 
 
 /**
