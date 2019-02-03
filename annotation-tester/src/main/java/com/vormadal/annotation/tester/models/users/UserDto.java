@@ -2,8 +2,10 @@ package com.vormadal.annotation.tester.models.users;
 
 import com.vormadal.mongodb.annotations.MongoDto;
 import com.vormadal.mongodb.annotations.PartialDto;
+
 import lombok.Data;
 import com.vormadal.annotation.tester.models.BaseDto;
+import lombok.EqualsAndHashCode;
 
 /**
  * <p>Created: 31-01-2019</p>
@@ -11,13 +13,14 @@ import com.vormadal.annotation.tester.models.BaseDto;
  */
 @MongoDto(partials = {
         @PartialDto(name = "CreateUserDto", includeFields = {
-                "userName", "extras"
+                "userName", "extras", "id"
         }),
         @PartialDto(name = "UpdateUserDto", excludeFields = {
-                "userName"
+                "userName", "id"
         })
 })
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class UserDto extends BaseDto {
 
     private String userName;

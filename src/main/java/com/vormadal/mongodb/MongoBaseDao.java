@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created: 21-09-2018
@@ -29,10 +30,23 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
 
     private final String wildcardChar;
 
+    private final boolean fetchUpdatedElement;
 
     public MongoBaseDao(DbProvider provider, Class<T> type) {
+        this(provider, type, false);
+    }
+
+    /**
+     *
+     * @param provider
+     * @param type
+     * @param fetchUpdatedElement - if true, when making partial updates the method will fetch the
+     *                            element from the database ensuring the element does not contain any unsaved data.
+     */
+    public MongoBaseDao(DbProvider provider, Class<T> type, boolean fetchUpdatedElement) {
         this.provider = provider;
         this.type = type;
+        this.fetchUpdatedElement = fetchUpdatedElement;
         DaoOptions daoOptions = provider.getDaoOptions();
         this.wildcardChar = (daoOptions == null) ? "*" : daoOptions.getWildcardChar();
     }
@@ -106,6 +120,9 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
 
     public abstract T update(T element) throws MorphiaException;
 
+    public T update(T element, Class fields) throws MorphiaException{
+        return update(element.getId(), element, fields);
+    }
     /**
      * Creates a partial update of element by updating
      * only fields that element class and fields have in common.
@@ -114,9 +131,10 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
      * @return element
      * @throws MorphiaException
      */
-    public T update(T element, Class fields) throws MorphiaException{
-        Query<T> query = query().field("_id").equal(element.getId());
+    public T update(String id, T element, Class fields) throws MorphiaException{
+        Query<T> query = query().field("_id").equal(id);
         ds().update(query, updateOperation(element, fields));
+        if(fetchUpdatedElement) return get(id);
         return element;
     }
 
@@ -130,8 +148,16 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
         }
     }
 
+    /**
+     * Use the update(String id, T element, Class fields)} method instead.
+     * @param fields
+     * @param element
+     * @return
+     * @throws MorphiaException
+     */
+    @Deprecated()
     public T updateFields(Collection<String> fields, T element) throws MorphiaException{
-        Query<T> query = query().field("_id").equal(element.getId());
+        Query<T> query = query(element.getId());
         UpdateOperations<T> operations = updateOperation();
         for(String field : fields){
             try {
@@ -146,6 +172,7 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
             }
         }
         ds().update(query, operations);
+        if(fetchUpdatedElement) return get(element.getId());
         return element;
     }
 
@@ -168,6 +195,7 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
         for(T element : elements){
             ds().update(element, updateOperation(element, fields));
         }
+        if(fetchUpdatedElement) return multiGet(elements.stream().map(T::getId).collect(Collectors.toList()));
         return elements;
     }
     public List<T> updateMultiple(List<T> elements) throws MorphiaException {
