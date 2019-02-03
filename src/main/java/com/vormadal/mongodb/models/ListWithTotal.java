@@ -19,6 +19,6 @@ public class ListWithTotal<T> {
         this.count = count == null ? 0 : count;
     }
     public ListWithTotal(List<T> list, long count){
-        this(list, new Long(count));
+        this(list, Long.valueOf(count));
     }
 }

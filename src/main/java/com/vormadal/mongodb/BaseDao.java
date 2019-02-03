@@ -23,9 +23,13 @@ public interface BaseDao<T extends BaseDto> {
     List<T> createMultiple(List<T> elements) throws MorphiaException;
 
     T update(T element) throws MorphiaException;
+    T update(T element, Class fields) throws MorphiaException;
+    T update(String id, T element, Class fields) throws MorphiaException;
     T updateAll(T element) throws MorphiaException;
+    @Deprecated
     T updateFields(Collection<String> fields, T element) throws MorphiaException;
     List<T> updateMultiple(List<T> elements) throws MorphiaException;
+    List<T> updateMultiple(List<T> elements, Class fields) throws MorphiaException;
 
     T get(String id) throws MorphiaException, ValidationException;
     T get(ObjectId id) throws MorphiaException, ValidationException;

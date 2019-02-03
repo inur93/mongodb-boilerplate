@@ -155,7 +155,7 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
      * @return
      * @throws MorphiaException
      */
-    @Deprecated()
+    @Deprecated
     public T updateFields(Collection<String> fields, T element) throws MorphiaException{
         Query<T> query = query(element.getId());
         UpdateOperations<T> operations = updateOperation();
