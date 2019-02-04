@@ -18,10 +18,10 @@ import lombok.EqualsAndHashCode;
         @PartialDto(name = "UpdateUserDto", excludeFields = {
                 "userName", "id"
         })
-})
+}, includeInheritedFields = true)
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class UserDto extends BaseDto {
+public class UserDto extends SuperUser {
 
     private String userName;
     private String name;

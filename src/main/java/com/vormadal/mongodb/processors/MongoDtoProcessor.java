@@ -56,10 +56,11 @@ public class MongoDtoProcessor extends AbstractProcessor {
                     packageName = extractPackageName(qualifiedName);
                 }
 
-                processPartialDtos(classType, extractPackageName(qualifiedName));
+                MongoDto dtoAnnotation = classType.getAnnotation(MongoDto.class);
+                processPartialDtos(classType, dtoAnnotation, extractPackageName(qualifiedName));
 
                 List<String> fieldNames = new ArrayList<>();
-                List<? extends Element> fields = classType.getEnclosedElements();
+                List<? extends Element> fields = getClassFields(classType, dtoAnnotation.includeInheritedFields());
 
                 for (Element field : fields) {
                     if (field instanceof VariableElement) {
@@ -78,16 +79,16 @@ public class MongoDtoProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void processPartialDtos(TypeElement classType, String packageName) {
+    private void processPartialDtos(TypeElement classType, MongoDto dtoAnnotation, String packageName) {
 
-        MongoDto dtoAnnotation = classType.getAnnotation(MongoDto.class);
+
         String className = classType.getSimpleName().toString();
 
         for (PartialDto partial : dtoAnnotation.partials()) {
             String partialClassName = partial.name();
 
             List<Element> fields = new ArrayList<>();
-            List<? extends Element> classFields = getClassFields(classType);
+            List<? extends Element> classFields = getClassFields(classType, partial.includeInheritedFields());
             Set<String> includedFields = new HashSet<>(asList(partial.includeFields()));
             Set<String> excludedFields = new HashSet<>(asList(partial.excludeFields()));
 
@@ -118,17 +119,17 @@ public class MongoDtoProcessor extends AbstractProcessor {
         }
     }
 
-    private List<? extends Element> getClassFields(TypeElement classType) {
+    private List<? extends Element> getClassFields(TypeElement classType, boolean includeInheritedFields) {
 
         List<? extends Element> enclosedElements = classType.getEnclosedElements();
         List<Element> list = new ArrayList<>(enclosedElements);
 
             TypeMirror superclass = classType.getSuperclass();
-            if (!superclass.getKind().equals(TypeKind.NONE)) {
+            if (includeInheritedFields && !superclass.getKind().equals(TypeKind.NONE)) {
                 DeclaredType declaredType = (DeclaredType) classType.getSuperclass();
                 try{
                     TypeElement typeElement = (TypeElement) declaredType.asElement();
-                    List<? extends Element> classFields = getClassFields(typeElement);
+                    List<? extends Element> classFields = getClassFields(typeElement, true);
                     list.addAll(classFields);
                 }catch (Throwable e){
                     error(e.getMessage(), classType);

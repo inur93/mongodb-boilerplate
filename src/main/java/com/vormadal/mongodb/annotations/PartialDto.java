@@ -29,6 +29,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface PartialDto {
     String name();
+    boolean includeInheritedFields() default true;
     String[] includeFields() default {};
     String[] excludeFields() default {};
 }

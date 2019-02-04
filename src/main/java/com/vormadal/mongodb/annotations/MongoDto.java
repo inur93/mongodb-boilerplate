@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
  * <p>
  *     When a class is annotated with {@link MongoDto} a static class will be created
  *     inside the Fields class containing the name of all of this classes fields.
+ *     If includeInheritedFields is true the fields of the super class is included and its super class etc.
+ *     This can be useful if the super class cannot be annotated with the MongoDto annotation but one of its field names are required.
  * </p>
  * <p>
  *     This can be useful when querying or updating a mongo collection.
@@ -24,4 +26,5 @@ public @interface MongoDto {
      * see {@link PartialDto} for more information.
      */
     PartialDto[] partials() default {};
+    boolean includeInheritedFields() default false;
 }
