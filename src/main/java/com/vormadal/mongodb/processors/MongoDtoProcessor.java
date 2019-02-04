@@ -60,12 +60,18 @@ public class MongoDtoProcessor extends AbstractProcessor {
                 processPartialDtos(classType, dtoAnnotation, extractPackageName(qualifiedName));
 
                 List<String> fieldNames = new ArrayList<>();
-                List<? extends Element> fields = getClassFields(classType, dtoAnnotation.includeInheritedFields());
-
+                Set<? extends Element> fields = getClassFields(classType, dtoAnnotation.includeInheritedFields(), new HashSet<>());
+                Set<String> existingFields = new HashSet<>();
                 for (Element field : fields) {
-                    if (field instanceof VariableElement) {
-                        fieldNames.add(field.getSimpleName().toString());
+                    String name = field.getSimpleName().toString();
+                    if ( field instanceof VariableElement) {
+                        if(!existingFields.contains(name)) {
+                            fieldNames.add(name);
+                        }else{
+                            info("duplicate field " + name, field);
+                        }
                     }
+                    existingFields.add(name);
                 }
 
                 classFields.put(className, fieldNames);
@@ -88,7 +94,7 @@ public class MongoDtoProcessor extends AbstractProcessor {
             String partialClassName = partial.name();
 
             List<Element> fields = new ArrayList<>();
-            List<? extends Element> classFields = getClassFields(classType, partial.includeInheritedFields());
+            Set<? extends Element> classFields = getClassFields(classType, partial.includeInheritedFields(), new HashSet<>());
             Set<String> includedFields = new HashSet<>(asList(partial.includeFields()));
             Set<String> excludedFields = new HashSet<>(asList(partial.excludeFields()));
 
@@ -119,17 +125,26 @@ public class MongoDtoProcessor extends AbstractProcessor {
         }
     }
 
-    private List<? extends Element> getClassFields(TypeElement classType, boolean includeInheritedFields) {
+    private Set<? extends Element> getClassFields(TypeElement classType, boolean includeInheritedFields, Set<String> existing) {
 
         List<? extends Element> enclosedElements = classType.getEnclosedElements();
-        List<Element> list = new ArrayList<>(enclosedElements);
+        //filter any duplicate fields
+        Set<Element> list = enclosedElements
+                .stream()
+                .filter(f -> {
+                    String name = f.getSimpleName().toString();
+                    boolean filter = !existing.contains(name);
+                    existing.add(name);
+                    return filter;
+                })
+                .collect(Collectors.toSet());
 
             TypeMirror superclass = classType.getSuperclass();
             if (includeInheritedFields && !superclass.getKind().equals(TypeKind.NONE)) {
                 DeclaredType declaredType = (DeclaredType) classType.getSuperclass();
                 try{
                     TypeElement typeElement = (TypeElement) declaredType.asElement();
-                    List<? extends Element> classFields = getClassFields(typeElement, true);
+                    Set<? extends Element> classFields = getClassFields(typeElement, true, existing);
                     list.addAll(classFields);
                 }catch (Throwable e){
                     error(e.getMessage(), classType);
@@ -138,7 +153,7 @@ public class MongoDtoProcessor extends AbstractProcessor {
         return list;
     }
 
-    private void validateFields(Element element, List<? extends Element> classFields, Set<String> fields) {
+    private void validateFields(Element element, Set<? extends Element> classFields, Set<String> fields) {
         try {
             for (String field : fields) {
                 Optional<? extends Element> first = classFields.stream().filter(f -> f.getSimpleName().toString().equals(field)).findFirst();

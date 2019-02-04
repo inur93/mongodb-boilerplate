@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = false)
 public class UserDto extends SuperUser {
 
+    private String id;
     private String userName;
     private String name;
     private BaseDto extras;
