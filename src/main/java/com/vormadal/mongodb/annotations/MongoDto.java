@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface MongoDto {
     /**
-     * see {@link PartialDto} for more information.
+     * see {@link @PartialDto} for more information.
      */
     PartialDto[] partials() default {};
     boolean includeInheritedFields() default false;

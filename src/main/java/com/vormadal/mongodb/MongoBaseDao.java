@@ -2,14 +2,14 @@ package com.vormadal.mongodb;
 
 import com.mongodb.WriteResult;
 import com.vormadal.mongodb.exceptions.MorphiaException;
-import com.vormadal.mongodb.models.BaseDto;
+import com.vormadal.mongodb.models.HasId;
 import com.vormadal.mongodb.models.ListWithTotal;
 import com.vormadal.mongodb.models.Order;
 import com.vormadal.mongodb.options.DaoOptions;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.Datastore;
-import org.mongodb.morphia.aggregation.AggregationPipeline;
-import org.mongodb.morphia.query.*;
+import xyz.morphia.Datastore;
+import xyz.morphia.aggregation.AggregationPipeline;
+import xyz.morphia.query.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Created: 21-09-2018
  * author: Runi
  */
-public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
+public abstract class MongoBaseDao<T extends HasId> implements BaseDao<T> {
 
     protected Class<T> type;
     private DbProvider provider;
@@ -55,11 +55,16 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
         return provider.getDb().getDatastore();
     }
 
+    /**
+     * converts the id to an objectId and calls {@code query(Object id)}.
+     * @param element
+     * @return
+     */
     protected Query<T> query(T element){
-        return query(element.getId());
+        return query(new ObjectId(element.getId()));
     }
 
-    protected Query<T> query(String id){
+    protected Query<T> query(Object id){
         return query().field("_id").equal(id);
     }
 
@@ -104,11 +109,13 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
         return ds().createAggregation(type);
     }
 
+    @Override
     public long getCount(){
         return ds().getCount(type);
     }
 
     public T create(T element) throws MorphiaException {
+        if(element.getId() != null) throw new MorphiaException("element already has an id");
         ds().save(element);
         return element;
     }
@@ -118,11 +125,10 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
         return elements;
     }
 
-    public abstract T update(T element) throws MorphiaException;
+    @Override
+    public abstract T update(String id, T element) throws MorphiaException;
 
-    public T update(T element, Class fields) throws MorphiaException{
-        return update(element.getId(), element, fields);
-    }
+
     /**
      * Creates a partial update of element by updating
      * only fields that element class and fields have in common.
@@ -132,10 +138,15 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
      * @throws MorphiaException
      */
     public T update(String id, T element, Class fields) throws MorphiaException{
-        Query<T> query = query().field("_id").equal(id);
+        Query<T> query = query(new ObjectId(id));
         ds().update(query, updateOperation(element, fields));
         if(fetchUpdatedElement) return get(id);
         return element;
+    }
+
+    @Override
+    public T updateAll(String id, T element) throws MorphiaException {
+        return this.update(id, element, element.getClass());
     }
 
     private void addFieldToUpdateOperation(T element, UpdateOperations<T> operations, String fieldName, String getterName) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
@@ -148,33 +159,6 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
         }
     }
 
-    /**
-     * Use the update(String id, T element, Class fields)} method instead.
-     * @param fields
-     * @param element
-     * @return
-     * @throws MorphiaException
-     */
-    @Deprecated
-    public T updateFields(Collection<String> fields, T element) throws MorphiaException{
-        Query<T> query = query(element.getId());
-        UpdateOperations<T> operations = updateOperation();
-        for(String field : fields){
-            try {
-                String methodName = "get" + field.substring(0,1).toUpperCase() + field.substring(1);
-                addFieldToUpdateOperation(element, operations, field, methodName);
-            } catch (NoSuchMethodException e) {
-                throw new MorphiaException("The field '" + field + "' does not exist");
-            } catch (IllegalAccessException e) {
-                throw new MorphiaException("Illegal access to field '" + field + "'.");
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        }
-        ds().update(query, operations);
-        if(fetchUpdatedElement) return get(element.getId());
-        return element;
-    }
 
     public T updateAll(T element) throws MorphiaException {
         if (element == null) {
@@ -204,11 +188,7 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
     }
 
     public T get(String id) throws MorphiaException, ValidationException {
-        return ds().get(type, id);
-    }
-
-    public T get(ObjectId id) throws MorphiaException, ValidationException {
-        return get(id.toString());
+        return ds().get(type, new ObjectId(id));
     }
 
     @SuppressWarnings("unchecked")
@@ -279,7 +259,11 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
     }
 
     public List<T> multiGet(Collection<String> ids) throws MorphiaException, ValidationException {
-        return ds().get(type, ids).asList();
+        return ds().get(type, mapIds(ids)).asList();
+    }
+
+    protected Collection<ObjectId> mapIds(Collection<String> ids){
+        return ids.stream().map(ObjectId::new).collect(Collectors.toList());
     }
 
     public List<T> getAll() throws MorphiaException {
@@ -288,17 +272,21 @@ public abstract class MongoBaseDao<T extends BaseDto> implements BaseDao<T> {
 
     public ListWithTotal<T> getAllWithTotal(int page, int size, String orderBy, Order order) {
         Query<T> query = query();
-        List<T> list = query.order(getOrder(orderBy, order)).asList(new FindOptions().skip(page*size).limit(size));
+        List<T> list = query
+                .order(getOrder(orderBy, order))
+                .asList(new FindOptions()
+                        .skip(page*size)
+                        .limit(size));
         return new ListWithTotal<>(list, query.count());
     }
 
-    public boolean delete(String oid) throws MorphiaException, ValidationException {
-        WriteResult result = ds().delete(type, oid);
+    public boolean delete(String id) throws MorphiaException, ValidationException {
+        WriteResult result = ds().delete(type, new ObjectId(id));
         return result.getN() > 0;
     }
 
     public boolean deleteMultiple(List<String> ids) throws MorphiaException, ValidationException {
-        WriteResult result = ds().delete(type, ids);
+        WriteResult result = ds().delete(type, mapIds(ids));
         return result.getN() > 0;
     }
 

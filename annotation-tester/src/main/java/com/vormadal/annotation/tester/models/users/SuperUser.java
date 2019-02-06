@@ -1,6 +1,7 @@
 package com.vormadal.annotation.tester.models.users;
 
 import com.vormadal.annotation.tester.models.BaseDto;
+import com.vormadal.mongodb.annotations.MongoDto;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * <p>author: Runi</p>
  */
 @Data
+@MongoDto
 public class SuperUser extends BaseDto {
     private String mySecretField;
 }

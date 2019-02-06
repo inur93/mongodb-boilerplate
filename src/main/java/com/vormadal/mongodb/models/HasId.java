@@ -5,7 +5,7 @@ package com.vormadal.mongodb.models;
  * author: Runi
  */
 
-public interface BaseDto {
+public interface HasId {
 
     String getId();
 }
