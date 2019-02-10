@@ -1,29 +1,29 @@
 package com.vormadal.annotation.tester.models;
 
-import com.vormadal.mongodb.annotations.MongoDto;
+import com.vormadal.mongodb.annotations.FieldsClass;
+import com.vormadal.mongodb.models.HasId;
 import lombok.Data;
 import org.bson.types.ObjectId;
-import org.mongodb.morphia.annotations.Id;
-import org.mongodb.morphia.annotations.PrePersist;
-import org.mongodb.morphia.annotations.Version;
+import xyz.morphia.annotations.Id;
+import xyz.morphia.annotations.PrePersist;
+import xyz.morphia.annotations.Version;
 
 import java.util.Date;
 
 /**
  * Created by Christian on 01-11-2017.
  */
-@MongoDto
+@FieldsClass
 @Data
-public abstract class BaseDto implements com.vormadal.mongodb.models.BaseDto {
-
-    @SuppressWarnings("WeakerAccess")
-    public BaseDto(){
-        this.setId(new ObjectId().toString());
-        /*this.setId(UUID.randomUUID().toString());*/
-    }
+public abstract class BaseDto implements HasId {
 
     @Id
-    private String id = new ObjectId().toString();//UUID.randomUUID().toString();
+    private ObjectId id;
+
+    public String getId(){
+        if(this.id == null) return null;
+        return id.toString();
+    }
 
     @Version
     private long v;

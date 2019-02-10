@@ -1,7 +1,7 @@
 package com.vormadal.annotation.tester;
 
 
-import com.vormadal.annotation.tester.models.Fields;
+import com.vormadal.annotation.tester.models.users.Fields;
 
 /**
  * <p>Created: 31-01-2019</p>

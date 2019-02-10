@@ -121,6 +121,7 @@ public abstract class MongoBaseDao<T extends HasId> implements BaseDao<T> {
     }
 
     public List<T> createMultiple(List<T> elements) throws MorphiaException {
+        for(T el : elements) if(el.getId() != null) throw new MorphiaException("Element already has an id");
         ds().save(elements);
         return elements;
     }

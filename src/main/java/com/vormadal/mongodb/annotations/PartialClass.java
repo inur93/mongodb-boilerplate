@@ -27,9 +27,9 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.ANNOTATION_TYPE)
-public @interface PartialDto {
+public @interface PartialClass {
     String name();
-    boolean includeInheritedFields() default true;
+    boolean includeInheritedFields() default false;
     String[] includeFields() default {};
     String[] excludeFields() default {};
 }
