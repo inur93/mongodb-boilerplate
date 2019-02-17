@@ -14,7 +14,7 @@ import java.util.Map;
  * Created: 21-09-2018
  * author: Runi
  */
-public interface BaseDao<T extends HasId> {
+public interface BaseDao<T extends HasId<I>, I> {
 
     /**
      *
@@ -45,7 +45,7 @@ public interface BaseDao<T extends HasId> {
      * @throws MorphiaException
      * @throws ValidationException
      */
-    T get(String id) throws MorphiaException, ValidationException;
+    T get(I id) throws MorphiaException, ValidationException;
 
     /**
      *
@@ -77,7 +77,7 @@ public interface BaseDao<T extends HasId> {
      * @throws MorphiaException
      * @throws ValidationException
      */
-    List<T> multiGet(Collection<String> ids) throws MorphiaException, ValidationException;
+    List<T> multiGet(Collection<I> ids) throws MorphiaException, ValidationException;
 
     /**
      *
@@ -103,7 +103,7 @@ public interface BaseDao<T extends HasId> {
      * @return
      * @throws MorphiaException
      */
-    T update(String id, T element) throws MorphiaException;
+    T update(I id, T element) throws MorphiaException;
 
     /**
      *
@@ -113,7 +113,7 @@ public interface BaseDao<T extends HasId> {
      * @return
      * @throws MorphiaException
      */
-    T update(String id, T element, Class fields) throws MorphiaException;
+    T update(I id, T element, Class fields) throws MorphiaException;
 
     /**
      *
@@ -122,7 +122,7 @@ public interface BaseDao<T extends HasId> {
      * @return
      * @throws MorphiaException
      */
-    T updateAll(String id, T element) throws MorphiaException;
+    T updateAll(I id, T element) throws MorphiaException;
 
     /**
      *
@@ -148,7 +148,7 @@ public interface BaseDao<T extends HasId> {
      * @throws MorphiaException
      * @throws ValidationException
      */
-    boolean delete(String id) throws MorphiaException, ValidationException;
+    boolean delete(I id) throws MorphiaException, ValidationException;
 
     /**
      *
@@ -157,7 +157,7 @@ public interface BaseDao<T extends HasId> {
      * @throws MorphiaException
      * @throws ValidationException
      */
-    boolean deleteMultiple(List<String> ids) throws MorphiaException, ValidationException;
+    boolean deleteMultiple(List<I> ids) throws MorphiaException, ValidationException;
 
 
 }

@@ -15,14 +15,17 @@ import java.util.Date;
  */
 @FieldsClass
 @Data
-public abstract class BaseDto implements HasId {
+public abstract class BaseDto implements HasId<ObjectId> {
 
     @Id
     private ObjectId id;
 
+    public ObjectId get_id(){
+        return id;
+    }
+
     public String getId(){
-        if(this.id == null) return null;
-        return id.toString();
+        return this.id == null ? null : this.id.toString();
     }
 
     @Version

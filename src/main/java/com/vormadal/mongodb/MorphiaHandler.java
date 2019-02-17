@@ -41,7 +41,6 @@ public class MorphiaHandler implements DbProvider {
                     morphia.mapPackage(pack);
                 }
             }
-
             log.info("Creating datastore for database: " + options.getDatabase());
             datastore = morphia.createDatastore(client, options.getDatabase());
             datastore.ensureIndexes();

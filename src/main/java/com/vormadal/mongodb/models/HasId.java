@@ -5,7 +5,7 @@ package com.vormadal.mongodb.models;
  * author: Runi
  */
 
-public interface HasId {
+public interface HasId<T> {
 
-    String getId();
+    T get_id();
 }
