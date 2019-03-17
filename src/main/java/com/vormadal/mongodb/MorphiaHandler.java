@@ -5,8 +5,8 @@ import com.vormadal.mongodb.exceptions.MorphiaException;
 import com.vormadal.mongodb.options.DaoOptions;
 import com.vormadal.mongodb.options.DbOptions;
 import lombok.extern.slf4j.Slf4j;
-import xyz.morphia.Datastore;
-import xyz.morphia.Morphia;
+import dev.morphia.Datastore;
+import dev.morphia.Morphia;
 
 
 /**

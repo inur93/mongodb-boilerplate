@@ -4,7 +4,7 @@ import com.vormadal.mongodb.exceptions.MorphiaException;
 import com.vormadal.mongodb.models.HasId;
 import com.vormadal.mongodb.models.ListWithTotal;
 import com.vormadal.mongodb.models.Order;
-import xyz.morphia.query.ValidationException;
+import dev.morphia.query.ValidationException;
 
 import java.util.Collection;
 import java.util.List;

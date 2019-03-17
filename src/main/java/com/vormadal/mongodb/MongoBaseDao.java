@@ -6,9 +6,9 @@ import com.vormadal.mongodb.models.HasId;
 import com.vormadal.mongodb.models.ListWithTotal;
 import com.vormadal.mongodb.models.Order;
 import com.vormadal.mongodb.options.DaoOptions;
-import xyz.morphia.Datastore;
-import xyz.morphia.aggregation.AggregationPipeline;
-import xyz.morphia.query.*;
+import dev.morphia.Datastore;
+import dev.morphia.aggregation.AggregationPipeline;
+import dev.morphia.query.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
