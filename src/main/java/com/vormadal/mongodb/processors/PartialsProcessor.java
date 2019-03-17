@@ -174,6 +174,23 @@ public class PartialsProcessor extends BaseProcessor {
             out.println("(){}");
 
             //constructor
+            out.print("public ");
+            out.print(className);
+            out.print("(");
+            out.print(targetClassName);
+            out.println(" obj){");
+            for(Element field : fields){
+                String name = field.getSimpleName().toString();
+                String getterName = getterName(field);
+
+                //set field value
+                out.print("this.");
+                out.print(name);
+                out.print("=obj.");
+                out.print(getterName);
+                out.println("();");
+            }
+            out.println("}");
 
             //getter for original object
             out.print("public ");
