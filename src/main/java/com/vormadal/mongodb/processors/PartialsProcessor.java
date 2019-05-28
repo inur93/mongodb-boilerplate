@@ -195,7 +195,7 @@ public class PartialsProcessor extends BaseProcessor {
             //getter for original object
             out.print("public ");
             out.print(targetClassName);
-            out.print(" get");
+            out.print(" to");
             out.print(targetClassName);
             out.println("(){");
             out.print(targetClassName);

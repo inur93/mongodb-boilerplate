@@ -24,6 +24,14 @@ public class MorphiaHandler implements DbProvider {
     public MorphiaHandler(DbOptions options) throws MorphiaException{
         this(null, options);
     }
+
+    /**
+     * Instantiates {@link MongoClient} and {@link Datastore} as well as ensuring indexes.
+     * If a {@link SetupHandler} is provided its onSetup method can be used to create initial data or other setup steps that requires access to the database.
+     * @param setupHandler - can be null. {@link SetupHandler}.onSetup will be called after instantiation of MongoClient and datastore.
+     * @param options - can NOT be null. Can be used to provide a custom MongoClient as well as a list of packages containing models to be mapped in morphia.
+     * @throws MorphiaException if the {@link MongoClient} or {@link Datastore} could not be instantiated. Or the provided ModelsPackages could not be mapped.
+     */
     public MorphiaHandler(SetupHandler setupHandler, DbOptions options) throws MorphiaException {
         try {
             MongoClient client = options.getMongoClient();
